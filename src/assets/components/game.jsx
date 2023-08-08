@@ -1,12 +1,8 @@
 import { useState } from "react"
 
-import checkIfWord from "check-if-word";
-
 import "../styles/game.css"
 
 export default function Game() {
-
-    let words = checkIfWord('en'); 
 
     const [CurrentRow, setCurrentRow] = useState(0)
 
@@ -18,7 +14,11 @@ export default function Game() {
 
     const [Answer, setAnswer] = useState(['R','O','D','E','O'])
 
+    const [Failed, setFailed] = useState(false)
+
     const [Finished, setFinished] = useState(false)
+
+    const [Copied, setCopied] = useState(false)
 
     const [Guesses, setGuesses] = useState([
         ['','','','',''],
@@ -79,7 +79,27 @@ export default function Game() {
         return exists
     }
 
-    const handleGuess = () => {
+    const checkIfWord = async (thisWord) => {
+        console.log(thisWord)
+        let result = null
+        await fetch("/.netlify/functions/check-word", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: thisWord
+        })
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            result = JSON.parse(data)
+        })
+        console.log(result)
+        return result
+    }
+
+    const handleGuess = async () => {
         let isFull = true
         let thisWord = ''
         for(let i= 0; i<Guesses[CurrentRow].length; i++) {
@@ -89,7 +109,7 @@ export default function Game() {
                 isFull = false
             }
         }
-        let isAWord = words.check(thisWord)
+        let isAWord = await checkIfWord(thisWord)
         if (isFull && isAWord) {
             checkLetters()
             setCurrentRow(previous => previous + 1)
@@ -125,13 +145,41 @@ export default function Game() {
             setMessage('You Win!')
             setShowMessage(true)
             setFinished(true)
+        } else if (CurrentRow === 5) {
+            setMessage('Better Luck Next Time.')
+            setShowMessage(true)
+            setFinished(true)
+            setFailed(true)
         }
     }
 
+    const copyResult = () => {
+        let resultString = ''
+        if (Failed) {
+            resultString = 'Fairdle X/6\n\n'
+        } else {
+            resultString = `Fairdle ${CurrentRow}/6\n\n`
+        }
+        for (let i=0;i<CurrentRow;i++) {
+            for (let j=0;j<Results[i].length;j++) {
+                if (Results[i][j] === 1) {
+                    resultString += '🟨'
+                } else if (Results[i][j] === 2) {
+                    resultString += '🟩'
+                } else {
+                    resultString += '⬛️'
+                }
+            }
+            resultString += '\n'
+        }
+        navigator.clipboard.writeText(resultString)
+        setCopied(true)
+    }
+
     const ShareResult = () =>
-    <div className="flex justify-center items-center flex-col absolute h-[27rem] w-[22rem] bg-[#2e2e2e] rounded-xl bg-opacity-[97%]">
+    <div className="jump flex justify-center items-center flex-col absolute h-[15rem] w-[15rem] bg-[#2e2e2e] rounded-xl bg-opacity-[97%]">
         <p className="text-3xl text-[#ffffff] font-bold mb-14">Share It Up!</p>
-        <div className="w-7/12 flex justify-center items-center bg-green-500 py-6 rounded-full text-xl text-[#ffffff] font-semibold">Copy Results</div>
+        <div onClick={() => copyResult()} className={`w-9/12 flex justify-center items-center bg-green-500 ${Copied ? 'bg-opacity-70' : 'bg-opacity-100'} py-4 rounded-full text-xl text-[#ffffff] font-semibold`}>{Copied ? 'Copied!' : 'Copy Results'}</div>
     </div>
 
     const GuessTile = () =>
@@ -153,7 +201,7 @@ export default function Game() {
         {Keys.map((row, index) =>
             <div key={index} className="flex flex-row h-auto w-auto gap-1 mb-1">
                 {row.map((letter, i) =>
-                    <div key={i} onClick={() => handleLetter(letter)} className="hover:cursor-pointer h-12 w-8 bg-[#757575] text-[#ffffff] font-bold flex justify-center items-center rounded-[.25rem]">
+                    <div key={i} onClick={Finished ? null : () => handleLetter(letter)} className="hover:cursor-pointer h-12 w-8 bg-[#757575] text-[#ffffff] font-bold flex justify-center items-center rounded-[.25rem]">
                         {letter}
                     </div>
                 )}
@@ -163,8 +211,8 @@ export default function Game() {
 
     const ActionButtons = () =>
     <div className="h-auto w-full max-w-xl flex flex-row mx-auto justify-center items-center mt-2 mb-6 gap-2">
-        <div onClick={() => handleGuess()} className="hover: cursor-pointer w-20 h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] bg-green-400">ENTER</div>
-        <div onClick={() => handleRemove()} className="hover: cursor-pointer w-20 h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] bg-red-400">UNDO</div>
+        <div onClick={Finished ? null : () => handleGuess()} className="hover: cursor-pointer w-20 h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] border-2 border-green-500">ENTER</div>
+        <div onClick={Finished ? null : () => handleRemove()} className="hover: cursor-pointer w-20 h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] border-2 border-red-400">UNDO</div>
     </div>
 
     const MessageView = () =>
