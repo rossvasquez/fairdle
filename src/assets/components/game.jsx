@@ -238,7 +238,7 @@ export default function Game() {
     </div>
 
     const Keyboard = () =>
-    <div className={`${Finished ? 'opacity-0' : null} h-auto w-full max-w-xl flex flex-col mx-auto justify-center items-center mt-4 px-2 relative z-20 bg-[#1c1c1c]`}>
+    <div className={`${Finished ? 'opacity-0 z-0' : null} h-auto w-full max-w-xl flex flex-col mx-auto justify-center items-center mt-4 px-2 relative z-20 bg-[#1c1c1c]`}>
         {Keys.map((row, index) =>
             <div key={index} className="flex flex-row justify-center h-auto w-full gap-1 mb-1">
                 {row.map((letter, i) =>
@@ -251,7 +251,7 @@ export default function Game() {
     </div>
 
     const ActionButtons = () =>
-    <div className={`${Finished ? 'opacity-0' : null} h-auto w-full max-w-xl flex flex-row mx-auto justify-center items-center pb-6 gap-1 relative z-20 bg-[#1c1c1c]`}>
+    <div className={`${Finished ? 'opacity-0 z-0' : null} h-auto w-full max-w-xl flex flex-row mx-auto justify-center items-center pb-6 gap-1 relative z-20 bg-[#1c1c1c]`}>
         <div onClick={Finished ? null : () => handleGuess()} className="hover: cursor-pointer w-[7.6rem] h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] bg-[#757575]">GUESS</div>
         <div onClick={Finished ? null : () => handleRemove()} className="hover: cursor-pointer w-[7.6rem] h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] bg-[#757575]">UNDO</div>
     </div>
