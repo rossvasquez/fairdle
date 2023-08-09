@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
 
+import AdSense from 'react-adsense';
+
 import "../styles/game.css"
 
 export default function Game() {
@@ -277,6 +279,14 @@ export default function Game() {
     <div className="w-full max-w-xl mx-auto h-20 px-8 flex items-center text-xl text-white">
         <p className="w-full text-right">Ad</p>
     </div>
+    <AdSense.Google
+      client='ca-pub-8111477554789873'
+      slot='1828240615'
+      style={{ display: 'block' }}
+      format='auto'
+      responsive='true'
+      layoutKey='-gw-1+2a-9x+5c'
+    />
     <div onClick={() => setShowGame(true)} className="hover:cursor-pointer active:opacity-70 mx-auto w-48 h-14 bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] rounded-full flex justify-center items-center text-white text-2xl pb-1 font-semibold">Continue</div>
     </>
 
