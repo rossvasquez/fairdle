@@ -8,7 +8,7 @@ import "../styles/game.css"
 
 export default function Game() {
 
-    const [ShowGame, setShowGame] = useState(false)
+    const [ShowGame, setShowGame] = useState(true)
 
     const [CurrentRow, setCurrentRow] = useState(0)
 
@@ -19,6 +19,10 @@ export default function Game() {
     const [Message, setMessage] = useState('')
 
     const [Answer, setAnswer] = useState([])
+
+    const [GrayOut, setGrayOut] = useState([])
+    const [YellowOut, setYellowOut] = useState([])
+    const [GreenOut, setGreenOut] = useState([])
 
     const [Failed, setFailed] = useState(false)
 
@@ -77,7 +81,6 @@ export default function Game() {
 
     useEffect(() => {
         const date = new Date()
-        console.log(date)
         const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
         let testy = localStorage.getItem(`Data ${formattedDate}`)
         if (testy == null) {
@@ -97,7 +100,6 @@ export default function Game() {
         } else {
             let asString = localStorage.getItem(`Data ${formattedDate}`)
             let asObject = JSON.parse(asString)
-            console.log(asObject)
             setGuesses(asObject.guesses)
             setResults(asObject.results)
             setCurrentRow(asObject.currentRow)
@@ -189,7 +191,6 @@ export default function Game() {
             "failed": Failed,
             "finished": Finished
         }
-        console.log(data)
         let dataString = JSON.stringify(data)
         localStorage.setItem(`Data ${formattedDate}`, dataString)
     }, [CurrentPosition, ShowMessage])
@@ -210,10 +211,10 @@ export default function Game() {
             setCurrentRow(previous => previous + 1)
             setCurrentPosition(0)
         } else if (!isFull) {
-            setMessage('Try Again')
+            setMessage('Enter A Full Word')
             setShowMessage(true)
         } else if (!isAWord) {
-            setMessage('Try Again')
+            setMessage('Not A Word')
             setShowMessage(true)
         }
     }
@@ -221,8 +222,6 @@ export default function Game() {
     const checkBack = (tempResults, good) => {
 
         let temp = tempResults
-
-        console.log(temp)
 
         const checkForHowMany = (q) => {
             let count = 0
@@ -244,29 +243,33 @@ export default function Game() {
             return isGreen
         }
 
+        let grayOut = [...GrayOut]
 
         for(let i=0;i<temp.length;i++) {
             if (temp[i] == 1) {
                 let count = checkForHowMany(i)
                 let isGreen = checkIfGreen(i)
-                console.log(`Letter: ${Guesses[CurrentRow][i]}, Count: ${count}, isGreen: ${isGreen}`)
                 if (count < 2 && isGreen) {
                     temp[i] = 3
+                    grayOut.push(Guesses[CurrentRow][i])
+                    setGrayOut(grayOut)
                 }
             }
         }
-
-        console.log(temp)
 
         return temp
     }
 
     const checkLetters = () => {
         let tempResults = [...Results]
+        let grayOut = [...GrayOut]
+        let yellowOut = [...YellowOut]
+        let greenOut = [...GreenOut]
         let tempResultsRow = []
         let alreadyExistsGood = []
         let alreadyExistsBad = []
         let winCount = 0
+        console.log(grayOut,yellowOut,greenOut)
         for(let i= 0; i<Guesses[CurrentRow].length; i++) {
             let currentLetter = Guesses[CurrentRow][i]
             let correctLetter = Answer[i]
@@ -296,13 +299,20 @@ export default function Game() {
             if (currentLetter == correctLetter) {
                 alreadyExistsGood.push(currentLetter)
                 tempResultsRow.push(2)
+                greenOut.push(currentLetter)
+                setGreenOut(greenOut)
                 winCount++
             } else if ((checkExistence(currentLetter, alreadyExistsGood)) && pass) {
                 tempResultsRow.push(1)
+                yellowOut.push(currentLetter)
+                setYellowOut(yellowOut)
                 alreadyExistsBad.push(currentLetter)
             } else {
                 tempResultsRow.push(3)
+                grayOut.push(currentLetter)
+                setGrayOut(grayOut)
             }
+            console.log(currentLetter, correctLetter, grayOut, yellowOut, greenOut)
         }
         tempResults[CurrentRow] = checkBack(tempResultsRow, alreadyExistsGood)
         setResults(tempResults)
@@ -343,6 +353,26 @@ export default function Game() {
         setCopied(true)
     }
 
+    const checkKeyColor = (letter) => {
+        let color = 0
+        for (let i = 0;i<GrayOut.length;i++) {
+            if (GrayOut[i] == letter) {
+                color = 1
+            }
+        }
+        for (let i = 0;i<YellowOut.length;i++) {
+            if (YellowOut[i] == letter) {
+                color = 2
+            }
+        }
+        for (let i = 0;i<GreenOut.length;i++) {
+            if (GreenOut[i] == letter) {
+                color = 3
+            }
+        }
+        return color
+    }
+
     const ShareResult = () =>
     <div className="bottom-4 left-0 right-0 flex justify-center items-center flex-col absolute h-[13rem] mx-auto w-full max-w-[20rem] bg-[#2e2e2e] rounded-xl z-10">
         <p className="text-3xl text-[#ffffff] font-bold mb-4">Share It Up!</p>
@@ -368,7 +398,7 @@ export default function Game() {
         {Keys.map((row, index) =>
             <div key={index} className="flex flex-row justify-center h-auto w-full gap-1 mb-1">
                 {row.map((letter, i) =>
-                    <div key={i} onClick={Finished ? null : () => handleLetter(letter)} className="hover:cursor-pointer h-12 w-8 active:bg-opacity-80 bg-[#757575] text-[#ffffff] font-bold flex justify-center items-center rounded-[.25rem]">
+                    <div key={i} onClick={Finished ? null : () => handleLetter(letter)} className={`${checkKeyColor(letter) == 0 ? 'bg-[#757575]' : 'null'} ${checkKeyColor(letter) == 1 ? 'bg-[#383838]' : 'null'} ${checkKeyColor(letter) == 2 ? 'bg-amber-400' : 'null'} ${checkKeyColor(letter) == 3 ? 'bg-green-600' : 'null'} hover:cursor-pointer h-12 w-8 active:bg-opacity-80 text-[#ffffff] font-bold flex justify-center items-center rounded-[.25rem]`}>
                         {letter}
                     </div>
                 )}
