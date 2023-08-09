@@ -402,7 +402,7 @@ export default function Game() {
         <p className="w-full text-right">Ad</p>
     </div>
     <Advertisement dataAdSlot='1828240615' />
-    <div onClick={() => setShowGame(true)} className="hover:cursor-pointer active:opacity-70 mt-10 mx-auto w-48 h-14 bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] rounded-full flex justify-center items-center text-white text-2xl pb-1 font-semibold">Continue</div>
+    <div onClick={() => setShowGame(true)} className="hover:cursor-pointer active:opacity-70 mt-10 mx-auto w-48 h-14 bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] rounded-full flex justify-center items-center text-white text-2xl font-semibold">Continue</div>
     </>
 
     return(
