@@ -16,7 +16,7 @@ export default function Game() {
 
     const [Message, setMessage] = useState('boop')
 
-    const [Answer, setAnswer] = useState(['R','O','D','E','O'])
+    const [Answer, setAnswer] = useState(['F','R','I','E','D'])
 
     const [Failed, setFailed] = useState(false)
 
