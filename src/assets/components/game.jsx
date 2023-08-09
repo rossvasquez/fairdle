@@ -16,7 +16,7 @@ export default function Game() {
 
     const [Message, setMessage] = useState('boop')
 
-    const [Answer, setAnswer] = useState(['F','R','I','E','D'])
+    const [Answer, setAnswer] = useState(['R','O','D','E','O'])
 
     const [Failed, setFailed] = useState(false)
 
@@ -139,6 +139,49 @@ export default function Game() {
         }
     }
 
+    const checkBack = (tempResults, good) => {
+
+        let temp = tempResults
+
+        console.log(temp)
+
+        const checkForHowMany = (q) => {
+            let count = 0
+            for (let i = 0;i<Answer.length;i++) {
+                if (Guesses[CurrentRow][q] == Answer[i]) {
+                    count++
+                }
+            }
+            return count
+        }
+
+        const checkIfGreen = (q) => {
+            let isGreen = false
+            for (let i = 0;i<good.length;i++) {
+                if (good[i] == Guesses[CurrentRow][q]) {
+                    isGreen = true
+                }
+            }
+            return isGreen
+        }
+
+
+        for(let i=0;i<temp.length;i++) {
+            if (temp[i] == 1) {
+                let count = checkForHowMany(i)
+                let isGreen = checkIfGreen(i)
+                console.log(`Letter: ${Guesses[CurrentRow][i]}, Count: ${count}, isGreen: ${isGreen}`)
+                if (count < 2 && isGreen) {
+                    temp[i] = 3
+                }
+            }
+        }
+
+        console.log(temp)
+
+        return temp
+    }
+
     const checkLetters = () => {
         let tempResults = [...Results]
         let tempResultsRow = []
@@ -182,7 +225,7 @@ export default function Game() {
                 tempResultsRow.push(3)
             }
         }
-        tempResults[CurrentRow] = tempResultsRow
+        tempResults[CurrentRow] = checkBack(tempResultsRow, alreadyExistsGood)
         setResults(tempResults)
         if (winCount == 5) {
             setMessage('You Win!')
@@ -222,7 +265,7 @@ export default function Game() {
     const ShareResult = () =>
     <div className="bottom-4 left-0 right-0 flex justify-center items-center flex-col absolute h-[13rem] mx-auto w-full max-w-[20rem] bg-[#2e2e2e] rounded-xl z-10">
         <p className="text-3xl text-[#ffffff] font-bold mb-4">Share It Up!</p>
-        <div onClick={() => copyResult()} className={`w-9/12 flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] ${Copied ? 'bg-opacity-40' : 'bg-opacity-100'} py-4 rounded-full text-xl text-[#ffffff] font-semibold`}>{Copied ? 'Copied!' : 'Copy Results'}</div>
+        <div onClick={() => copyResult()} className={`hover:cursor-pointer w-7/12 flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] ${Copied ? 'opacity-40' : 'opacity-100'} py-3 rounded-full text-xl text-[#ffffff] font-semibold`}>{Copied ? 'Copied!' : 'Copy Results'}</div>
         {Copied ? <p className="text-white text-center px-4 mt-4">Now paste your results into a text message or your favorite social media.</p> : null}
     </div>
 
@@ -260,7 +303,7 @@ export default function Game() {
 
     const MessageView = () =>
     <div className="absolute h-auto w-screen max-w-xl mx-auto">
-    <div className={`absolute z-30 -top-[5.7rem] ${Finished ? 'bg-[#1c1c1c]' : 'bg-red-400'} py-3 rounded-lg border border-[#ffffff] left-4 h-auto w-screen max-w-[18rem] mx-auto flex flex-row text-[#ffffff] text-2xl font-semibold capitalize justify-center items-center px-4 block ${ShowMessage ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`absolute z-30 -top-[5.7rem] ${Finished ? 'bg-[#1c1c1c]' : 'bg-red-400'} py-3 rounded-lg border border-[#ffffff] left-4 h-auto w-screen max-w-[18rem] mx-auto flex flex-row text-[#ffffff] text-2xl font-semibold capitalize justify-center items-center px-4 shadow-inner ${ShowMessage ? 'opacity-100' : 'opacity-0'}`}>
         <p>{Message}</p>
     </div>
     </div>
@@ -285,9 +328,8 @@ export default function Game() {
       style={{ display: 'block' }}
       format='auto'
       responsive='true'
-      layoutKey='-gw-1+2a-9x+5c'
     />
-    <div onClick={() => setShowGame(true)} className="hover:cursor-pointer active:opacity-70 mx-auto w-48 h-14 bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] rounded-full flex justify-center items-center text-white text-2xl pb-1 font-semibold">Continue</div>
+    <div onClick={() => setShowGame(true)} className="hover:cursor-pointer active:opacity-70 mt-10 mx-auto w-48 h-14 bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] rounded-full flex justify-center items-center text-white text-2xl pb-1 font-semibold">Continue</div>
     </>
 
     return(
