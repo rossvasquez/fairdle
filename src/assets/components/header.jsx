@@ -13,7 +13,7 @@ export default function Header() {
     const [ShowAbout, setShowAbout] = useState(false)
 
     const About = () =>
-    <div className="absolute bg-[#404040] w-[22.5rem] pb-[130%] mb max-h-[10rem] top-24 bottom-10 mx-auto left-0 right-0 rounded-lg shadow-lg z-30 px-6 pt-6 border-t-4 border-[#6ccfd3]">
+    <div className="absolute bg-[#404040] w-screen max-w-[22.5rem] pb-[47rem] top-24 bottom-10 mx-auto left-0 right-0 rounded-lg shadow-lg z-30 px-6 pt-6 border-t-4 border-[#6ccfd3]">
         <div onClick={() => setShowAbout(false)} className='hover:cursor-pointer absolute right-6 top-1.5 text-white text-3xl font-semibold'>x</div>
         <p className="text-white text-3xl font-bold mt-4">How To Play</p>
         <p className="text-white text-lg mt-1">Guess the 5 letter State Fair themed word in 6 tries or less.</p>

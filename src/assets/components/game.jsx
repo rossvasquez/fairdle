@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
 
+import { supabase } from "../../supabaseClient"
+
 import Advertisement from "./advertisement"
 
 import "../styles/game.css"
@@ -14,9 +16,9 @@ export default function Game() {
 
     const [ShowMessage, setShowMessage] = useState(false)
 
-    const [Message, setMessage] = useState('boop')
+    const [Message, setMessage] = useState('')
 
-    const [Answer, setAnswer] = useState(['F','R','I','E','D'])
+    const [Answer, setAnswer] = useState([])
 
     const [Failed, setFailed] = useState(false)
 
@@ -47,6 +49,65 @@ export default function Game() {
         ['A','S','D','F','G','H','J','K','L'],
         ['Z','X','C','V','B','N','M']
     ])
+
+    useEffect(() => {
+        const date = new Date()
+        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+        let tempArr = []
+        const getWord = async () => {
+            let word = ''
+            const { data, error } = await supabase
+                .from('daily_words')
+                .select('word')
+                .eq('date', formattedDate)
+            
+            if (error) {
+                window.alert('Error Getting The Daily Word, Please Try Again')
+            } else {
+                word = data[0].word
+                for(let i=0;i<word.length;i++) {
+                    tempArr.push(word[i])
+                }
+            }
+        return word
+        }
+        getWord()
+        setAnswer(tempArr)
+    }, [])
+
+    useEffect(() => {
+        const date = new Date()
+        console.log(date)
+        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+        let testy = localStorage.getItem(`Data ${formattedDate}`)
+        if (testy == null) {
+            window.localStorage.clear()
+            let data = {
+                "guesses": Guesses,
+                "results": Results,
+                "currentRow": CurrentRow,
+                "currentPosition": CurrentPosition,
+                "showMessage": ShowMessage,
+                "message": Message,
+                "failed": Failed,
+                "finished": Finished
+            }
+            let dataString = JSON.stringify(data)
+            localStorage.setItem(`Data ${formattedDate}`, dataString)
+        } else {
+            let asString = localStorage.getItem(`Data ${formattedDate}`)
+            let asObject = JSON.parse(asString)
+            console.log(asObject)
+            setGuesses(asObject.guesses)
+            setResults(asObject.results)
+            setCurrentRow(asObject.currentRow)
+            setCurrentPosition(asObject.currentPosition)
+            setShowMessage(asObject.showMessage)
+            setMessage(asObject.message)
+            setFailed(asObject.failed)
+            setFinished(asObject.finished)
+        }
+    }, [])
 
     const handleLetter = (letter) => {
         setShowMessage(false)
@@ -114,6 +175,24 @@ export default function Game() {
         })
         return result
     }
+
+    useEffect(() => {
+        const date = new Date()
+        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+        let data = {
+            "guesses": Guesses,
+            "results": Results,
+            "currentRow": CurrentRow,
+            "currentPosition": CurrentPosition,
+            "showMessage": ShowMessage,
+            "message": Message,
+            "failed": Failed,
+            "finished": Finished
+        }
+        console.log(data)
+        let dataString = JSON.stringify(data)
+        localStorage.setItem(`Data ${formattedDate}`, dataString)
+    }, [CurrentPosition, ShowMessage])
 
     const handleGuess = async () => {
         let isFull = true
