@@ -319,11 +319,13 @@ export default function Game() {
     }
 
     const copyResult = () => {
+        const date = new Date()
+        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
         let resultString = ''
         if (Failed) {
-            resultString = 'Fairdle X/6\n\n'
+            resultString = `${formattedDate} Fairdle X/6\n\n`
         } else {
-            resultString = `Fairdle ${CurrentRow}/6\n\n`
+            resultString = `${formattedDate} Fairdle ${CurrentRow}/6\n\n`
         }
         for (let i=0;i<CurrentRow;i++) {
             for (let j=0;j<Results[i].length;j++) {
