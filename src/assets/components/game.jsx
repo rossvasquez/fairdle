@@ -93,7 +93,10 @@ export default function Game() {
                 "showMessage": ShowMessage,
                 "message": Message,
                 "failed": Failed,
-                "finished": Finished
+                "finished": Finished,
+                "grayOut" : GrayOut,
+                "yellowOut" : YellowOut,
+                "greenOut" : GreenOut,
             }
             let dataString = JSON.stringify(data)
             localStorage.setItem(`Data ${formattedDate}`, dataString)
@@ -108,6 +111,9 @@ export default function Game() {
             setMessage(asObject.message)
             setFailed(asObject.failed)
             setFinished(asObject.finished)
+            setGrayOut(asObject.grayOut)
+            setYellowOut(asObject.yellowOut)
+            setGreenOut(asObject.greenOut)
         }
     }, [])
 
@@ -189,7 +195,10 @@ export default function Game() {
             "showMessage": ShowMessage,
             "message": Message,
             "failed": Failed,
-            "finished": Finished
+            "finished": Finished,
+            "grayOut" : GrayOut,
+            "yellowOut" : YellowOut,
+            "greenOut" : GreenOut,
         }
         let dataString = JSON.stringify(data)
         localStorage.setItem(`Data ${formattedDate}`, dataString)
