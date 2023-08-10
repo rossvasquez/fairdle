@@ -30,7 +30,7 @@ export default function Header() {
     </div>
 
     return(
-        <div className="relative h-20 w-screen bg-[#1c1c1c] flex items-center max-w-xl mx-auto">
+        <div className="select-none relative h-20 w-screen bg-[#1c1c1c] flex items-center max-w-xl mx-auto">
             <p className="textShadow relative z-20 text-[#ffffff] font-bold text-3xl pl-4">State Fair<span className="font-light">dle</span></p>
             {ShowAbout ? null : <div onClick={() => setShowAbout(true)} className='hover:cursor-pointer active:bg-opacity-90 absolute flex items-center justify-center text-3xl font-extrabold text-[#ffffff] bg-opacity-70 right-4 shadow-lg h-12 w-12 rounded-full bg-[#404040] z-20'>?</div> }
             <img src={headerBackground} className='shadow-lg w-screen mx-auto opacity-80 bottom-0 absolute left-0 right-0 z-10' />

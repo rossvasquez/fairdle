@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import { supabase } from "../../supabaseClient"
 
 import Advertisement from "./advertisement"
+import Dashboard from "./dashboard"
 
 import "../styles/game.css"
 
@@ -53,6 +54,31 @@ export default function Game() {
         ['A','S','D','F','G','H','J','K','L'],
         ['Z','X','C','V','B','N','M']
     ])
+
+    useEffect(() => {
+        const date = new Date()
+        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+        const getTraffic = async () => {
+            let count
+            const { data } = await supabase
+                .from('traffic_counter')
+                .select('visitors')
+                .eq('date_today', formattedDate)
+        
+            count = data[0].visitors
+            count++
+
+            const { error } = await supabase
+                .from('traffic_counter')
+                .update({ visitors: count })
+                .eq('date_today', formattedDate)
+            
+            if (error) {
+                window.alert("Error updating the count:", error);
+            } 
+        }
+        getTraffic()
+    }, [])
 
     useEffect(() => {
         const date = new Date()
@@ -269,6 +295,48 @@ export default function Game() {
         return temp
     }
 
+    const addToDashboard = (row) => {
+        const date = new Date()
+        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+
+        const addToCorrect = async () => {
+            const { data } = await supabase
+                .from('guesses')
+                .select('correct')
+                .eq('date', formattedDate)
+
+            let correctArray = JSON.parse(data[0].correct)
+            correctArray[row]++
+            let setArray = JSON.stringify(correctArray)
+
+            const { error } = await supabase
+                .from('guesses')
+                .update({ correct: setArray})
+                .eq('date', formattedDate)
+        }
+
+        const addToIncorrect = async () => {
+            const { data } = await supabase
+                .from('guesses')
+                .select('incorrect')
+                .eq('date', formattedDate)
+            
+            let count = data[0].incorrect
+            count++
+
+            const { error } = await supabase
+                .from('guesses')
+                .update({ incorrect: count })
+                .eq('date', formattedDate)
+        }
+        
+        if (row < 5) {
+            addToCorrect()
+        } else {
+            addToIncorrect()
+        }
+    }
+
     const checkLetters = () => {
         let tempResults = [...Results]
         let grayOut = [...GrayOut]
@@ -278,7 +346,6 @@ export default function Game() {
         let alreadyExistsGood = []
         let alreadyExistsBad = []
         let winCount = 0
-        console.log(grayOut,yellowOut,greenOut)
         for(let i= 0; i<Guesses[CurrentRow].length; i++) {
             let currentLetter = Guesses[CurrentRow][i]
             let correctLetter = Answer[i]
@@ -321,7 +388,6 @@ export default function Game() {
                 grayOut.push(currentLetter)
                 setGrayOut(grayOut)
             }
-            console.log(currentLetter, correctLetter, grayOut, yellowOut, greenOut)
         }
         tempResults[CurrentRow] = checkBack(tempResultsRow, alreadyExistsGood)
         setResults(tempResults)
@@ -329,11 +395,13 @@ export default function Game() {
             setMessage('You Win!')
             setShowMessage(true)
             setFinished(true)
+            addToDashboard(CurrentRow)
         } else if (CurrentRow === 5) {
-            setMessage('Better Luck Next Time.')
+            setMessage('Better Luck Tomorrow.')
             setShowMessage(true)
             setFinished(true)
             setFailed(true)
+            addToDashboard(CurrentRow)
         }
     }
 
@@ -383,14 +451,15 @@ export default function Game() {
     }
 
     const ShareResult = () =>
-    <div className="bottom-4 left-0 right-0 flex justify-center items-center flex-col absolute h-[13rem] mx-auto w-full max-w-[20rem] bg-[#2e2e2e] rounded-xl z-10">
+    <div className="select-none bottom-4 left-0 right-0 flex justify-center items-center flex-col absolute h-[13rem] mx-auto w-full max-w-[20rem] bg-[#2e2e2e] rounded-xl z-10">
         <p className="text-3xl text-[#ffffff] font-bold mb-4">Share It Up!</p>
         <div onClick={() => copyResult()} className={`hover:cursor-pointer w-7/12 flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] ${Copied ? 'opacity-40' : 'opacity-100'} py-3 rounded-full text-xl text-[#ffffff] font-semibold`}>{Copied ? 'Copied!' : 'Copy Results'}</div>
         {Copied ? <p className="text-white text-center px-4 mt-4">Now paste your results into a text message or your favorite social media.</p> : null}
+        <div onClick={() => setShowGame(false)} className="mt-4 hover:cursor-pointer w-7/12 flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] py-3 rounded-full text-xl text-[#ffffff] font-semibold">Show Dashboard</div>
     </div>
 
     const GuessTile = () =>
-    <div className="relative h-auto w-full max-w-xl flex flex-col mx-auto justify-center items-center px-2 mt-6">
+    <div className="select-none relative h-auto w-full max-w-xl flex flex-col mx-auto justify-center items-center px-2 mt-6">
     {Guesses.map((item, index) =>
         <div key={index} className="flex flex-row h-auto w-full justify-center gap-1.5 mb-1.5">
             {item.map((tile, i) =>
@@ -407,7 +476,7 @@ export default function Game() {
         {Keys.map((row, index) =>
             <div key={index} className="flex flex-row justify-center h-auto w-full gap-1 mb-1">
                 {row.map((letter, i) =>
-                    <div key={i} onClick={Finished ? null : () => handleLetter(letter)} className={`${checkKeyColor(letter) == 0 ? 'bg-[#757575]' : 'null'} ${checkKeyColor(letter) == 1 ? 'bg-[#383838]' : 'null'} ${checkKeyColor(letter) == 2 ? 'bg-amber-400' : 'null'} ${checkKeyColor(letter) == 3 ? 'bg-green-600' : 'null'} hover:cursor-pointer h-12 w-8 active:bg-opacity-80 text-[#ffffff] font-bold flex justify-center items-center rounded-[.25rem]`}>
+                    <div key={i} onClick={Finished ? null : () => handleLetter(letter)} className={`${checkKeyColor(letter) == 0 ? 'bg-[#757575]' : 'null'} ${checkKeyColor(letter) == 1 ? 'bg-[#383838]' : 'null'} ${checkKeyColor(letter) == 2 ? 'bg-amber-400' : 'null'} ${checkKeyColor(letter) == 3 ? 'bg-green-600' : 'null'} select-none hover:cursor-pointer h-12 w-8 active:bg-opacity-80 text-[#ffffff] font-bold flex justify-center items-center rounded-[.25rem]`}>
                         {letter}
                     </div>
                 )}
@@ -417,8 +486,8 @@ export default function Game() {
 
     const ActionButtons = () =>
     <div className={`${Finished ? 'opacity-0 z-0' : 'z-20'} h-auto w-full max-w-xl flex flex-row mx-auto justify-center items-center pb-6 gap-1 relative bg-[#1c1c1c]`}>
-        <div onClick={Finished ? null : () => handleGuess()} className="active:bg-opacity-80 hover:cursor-pointer w-[7.6rem] h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] bg-[#757575]">GUESS</div>
-        <div onClick={Finished ? null : () => handleRemove()} className="active:bg-opacity-80 hover:cursor-pointer w-[7.6rem] h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] bg-[#757575]">UNDO</div>
+        <div onClick={Finished ? null : () => handleGuess()} className="select-none active:bg-opacity-80 hover:cursor-pointer w-[7.6rem] h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] bg-[#757575]">GUESS</div>
+        <div onClick={Finished ? null : () => handleRemove()} className="select-none active:bg-opacity-80 hover:cursor-pointer w-[7.6rem] h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] bg-[#757575]">UNDO</div>
     </div>
 
     const MessageView = () =>
@@ -448,7 +517,7 @@ export default function Game() {
 
     return(
         <div className="relative w-screen h-auto max-w-xl mx-auto">
-            {ShowGame ? <Game /> : <Ad />}
+            {ShowGame ? <Game /> : <Dashboard OnClick={() => setShowGame(true)} />}
         </div>
     )
 }
