@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 
 import { supabase } from "../../supabaseClient"
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 import Advertisement from "./advertisement"
 import Dashboard from "./dashboard"
@@ -10,6 +11,10 @@ import "../styles/game.css"
 export default function Game() {
 
     const [ShowGame, setShowGame] = useState(true)
+
+    const [ShowThanks, setShowThanks] = useState(1)
+
+    const [Tip, setTip] = useState(0)
 
     const [CurrentRow, setCurrentRow] = useState(0)
 
@@ -450,12 +455,67 @@ export default function Game() {
         return color
     }
 
-    const ShareResult = () =>
-    <div className="select-none bottom-4 left-0 right-0 flex justify-center items-center flex-col absolute h-[13rem] mx-auto w-full max-w-[20rem] bg-[#2e2e2e] rounded-xl z-10">
-        <p className="text-3xl text-[#ffffff] font-bold mb-4">Share It Up!</p>
-        <div onClick={() => copyResult()} className={`hover:cursor-pointer w-7/12 flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] ${Copied ? 'opacity-40' : 'opacity-100'} py-3 rounded-full text-xl text-[#ffffff] font-semibold`}>{Copied ? 'Copied!' : 'Copy Results'}</div>
-        {Copied ? <p className="text-white text-center px-4 mt-4">Now paste your results into a text message or your favorite social media.</p> : null}
-        <div onClick={() => setShowGame(false)} className="mt-4 hover:cursor-pointer w-7/12 flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] py-3 rounded-full text-xl text-[#ffffff] font-semibold">Show Dashboard</div>
+    const paypalTip = () =>
+    <>
+    {ShowThanks===1 ?
+    <div onClick={() => setShowThanks(2)} className="hover:cursor-pointer w-full flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] py-2.5 rounded-md text-xl text-[#ffffff] font-semibold">Tip the Creator</div>
+    : null}
+    {ShowThanks===2 ?
+    <>
+    <div className="flex-row items-center flex w-full px-2">
+        <p className="w-9/12 text-2xl font-semibold text-white">Tip ($)</p>
+        <input onChange={(e) => setTip(e.target.value)} value={Tip} className="w-3/12 bg-[#757575] rounded-md shadow-inner h-12 text-white text-xl focus:outline-none text-center" type='number' />
+    </div>
+    <PayPalScriptProvider
+        options={{
+            clientID: import.meta.env.VITE_LIVE_PAYPAL,
+            disableFunding: "credit"
+        }}
+    >
+        <PayPalButtons className='relative w-full mt-4 z-0 -mb-4' forceReRender={[Tip]}
+            style={{
+                disableMaxWidth: true,
+                color: "silver",
+                tagline: false,
+            }}
+            createOrder={(data, actions) => {
+                return actions.order.create({
+                    purchase_units: [
+                        {
+                            amount: {
+                                value: Tip,
+                            },
+                        },
+                    ],
+                    application_context: {
+                        shipping_preference: "NO_SHIPPING",
+                    },
+                })
+            }}
+            onApprove={(data, actions) => {
+                return actions.order.capture().then(setShowThanks(3))
+            }}
+        />
+    </PayPalScriptProvider>
+    </>
+    : null}
+    {ShowThanks===3 ?
+    <div className="h-12 w-full flex justify-center items-center text-white text-2xl font-semibold">
+            Thank You for the Tip!
+    </div>
+    : null}
+    </>
+
+
+    const shareResult = () =>
+    <div className="select-none top-[27rem] left-0 right-0 flex p-4 flex-col absolute h-auto mx-auto w-full max-w-[22rem] bg-[#2e2e2e] rounded-xl z-10">
+        <p className="text-2xl text-[#ffffff] font-bold mb-3 pl-2">Share It Up!</p>
+        <div onClick={() => copyResult()} className={`hover:cursor-pointer w-full flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] ${Copied ? 'opacity-40' : 'opacity-100'} py-2.5 rounded-md text-xl text-[#ffffff] font-semibold`}>{Copied ? 'Copied!' : 'Copy Results'}</div>
+        {Copied ? <p className="text-white text-center px-4 mt-1.5">Now paste your results into a text message or your favorite social media.</p> : null}
+        <div className="w-full h-[.05rem] bg-[#757575] my-3" />
+        <div onClick={() => setShowGame(false)} className="hover:cursor-pointer w-full flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] py-2.5 rounded-md text-xl text-[#ffffff] font-semibold">Show Dashboard</div>
+        <div className="w-full h-[.05rem] bg-[#757575] my-3" />
+        {paypalTip()}
     </div>
 
     const GuessTile = () =>
@@ -497,9 +557,9 @@ export default function Game() {
     </div>
     </div>
 
-    const Game = () =>
+    const game = () =>
     <>
-        {Finished ? <ShareResult /> : null}
+        {Finished ? shareResult() : null}
         <MessageView />
         <GuessTile />
         <Keyboard />
@@ -517,7 +577,7 @@ export default function Game() {
 
     return(
         <div className="relative w-screen h-auto max-w-xl mx-auto">
-            {ShowGame ? <Game /> : <Dashboard OnClick={() => setShowGame(true)} />}
+            {ShowGame ? game() : <Dashboard OnClick={() => setShowGame(true)} />}
         </div>
     )
 }
