@@ -458,13 +458,16 @@ export default function Game() {
     const paypalTip = () =>
     <>
     {ShowThanks===1 ?
-    <div onClick={() => setShowThanks(2)} className="hover:cursor-pointer w-full flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] py-2.5 rounded-md text-xl text-[#ffffff] font-semibold">Tip the Creator</div>
+    <div onClick={() => setShowThanks(2)} className="hover:cursor-pointer w-full flex justify-center items-center border-[#29bfd5] border-2 focus:bg-[#757575] py-2.5 rounded-md text-xl text-[#ffffff] font-semibold">Keep Fairdle Ad Free</div>
     : null}
     {ShowThanks===2 ?
     <>
-    <div className="flex-row items-center flex w-full px-2">
-        <p className="w-9/12 text-2xl font-semibold text-white">Tip ($)</p>
-        <input onChange={(e) => setTip(e.target.value)} value={Tip} className="w-3/12 bg-[#757575] rounded-md shadow-inner h-12 text-white text-xl focus:outline-none text-center" type='number' />
+    <div className="flex-row items-center flex w-full px-2 mt-1">
+        <div className="relative flex items-center flex-row w-9/12 text-2xl font-semibold text-white">
+            <p>Tip Creator</p>
+            <p className="absolute right-1 font-light text-2xl">$</p>
+        </div>
+        <input onChange={(e) => setTip(e.target.value)} value={Tip} className="w-3/12 border-2 bg-[#404040] border-[#757575] rounded-md shadow-inner h-12 text-white text-2xl focus:outline-none text-center" type='number' />
     </div>
     <PayPalScriptProvider
         options={{
@@ -475,7 +478,7 @@ export default function Game() {
         <PayPalButtons className='relative w-full mt-4 z-0 -mb-4' forceReRender={[Tip]}
             style={{
                 disableMaxWidth: true,
-                color: "silver",
+                color: "white",
                 tagline: false,
             }}
             createOrder={(data, actions) => {
@@ -509,12 +512,11 @@ export default function Game() {
 
     const shareResult = () =>
     <div className="select-none top-[27rem] left-0 right-0 flex p-4 flex-col absolute h-auto mx-auto w-full max-w-[22rem] bg-[#2e2e2e] rounded-xl z-10">
-        <p className="text-2xl text-[#ffffff] font-bold mb-3 pl-2">Share It Up!</p>
+        <p className="text-2xl text-[#ffffff] font-semibold mb-3 text-center">Share It Up!</p>
         <div onClick={() => copyResult()} className={`hover:cursor-pointer w-full flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] ${Copied ? 'opacity-40' : 'opacity-100'} py-2.5 rounded-md text-xl text-[#ffffff] font-semibold`}>{Copied ? 'Copied!' : 'Copy Results'}</div>
         {Copied ? <p className="text-white text-center px-4 mt-1.5">Now paste your results into a text message or your favorite social media.</p> : null}
         <div className="w-full h-[.05rem] bg-[#757575] my-3" />
-        <div onClick={() => setShowGame(false)} className="hover:cursor-pointer w-full flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] py-2.5 rounded-md text-xl text-[#ffffff] font-semibold">Show Dashboard</div>
-        <div className="w-full h-[.05rem] bg-[#757575] my-3" />
+        <div onClick={() => setShowGame(false)} className="hover:cursor-pointer w-full flex justify-center items-center border-[#29bfd5] border-2 focus:bg-[#757575] py-2.5 rounded-md text-xl text-[#ffffff] font-semibold mb-3">Show Dashboard</div>
         {paypalTip()}
     </div>
 

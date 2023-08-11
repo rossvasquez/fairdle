@@ -68,7 +68,9 @@ export default function Dashboard({OnClick}) {
                     if (arr[j] == 0) {
                         percentRow.push('0')
                     } else {
-                        let percent = ((arr[j]/total).toFixed(2))*100
+                        let percentDecimal = (arr[j]/total).toFixed(2)
+                        console.log(percentDecimal)
+                        let percent = (percentDecimal*100).toFixed(0)
                         percentRow.push(percent)
                     }
                 }
@@ -109,10 +111,10 @@ export default function Dashboard({OnClick}) {
 
     const DateButtons = () =>
     <div className="flex items-center justify-center relative rounded-lg w-3/4 h-16 bg-[#1c1c1c]">
-        <div onClick={() => setCurrentPos(prev => prev - 1)} className={`${CurrentPos == 0 ? 'hidden' : null} pr-1 absolute left-2 h-10 w-10 rounded-full bg-opacity-20 flex justify-center items-center bg-[#ffffff]`}>
+        <div onClick={() => setCurrentPos(prev => prev - 1)} className={`${CurrentPos == 0 ? 'hidden' : null} pr-1 hover:cursor-pointer active:bg-opacity-40 absolute left-2 h-10 w-10 rounded-full bg-opacity-20 flex justify-center items-center bg-[#ffffff]`}>
             <img src={arrow} className='rotate-180 h-1/2'/>
         </div>
-        <div onClick={() => setCurrentPos(prev => prev + 1)} className={`${CurrentPos == ((Dates.length)-1) ? 'hidden' : null} pl-1 absolute right-2 h-10 w-10 rounded-full bg-opacity-20 flex justify-center items-center bg-[#ffffff]`}>
+        <div onClick={() => setCurrentPos(prev => prev + 1)} className={`${CurrentPos == ((Dates.length)-1) ? 'hidden' : null} pl-1 hover:cursor-pointer active:bg-opacity-40 absolute right-2 h-10 w-10 rounded-full bg-opacity-20 flex justify-center items-center bg-[#ffffff]`}>
             <img src={arrow} className='h-1/2'/>
         </div>
         <p className='w-full text-white text-2xl text-center font-semibold'>{Dates[CurrentPos]}</p>
@@ -168,7 +170,6 @@ export default function Dashboard({OnClick}) {
                 <DateButtons />
                 <div onClick={OnClick} className='hover:cursor-pointer h-16 w-1/4 flex pr-2 pb-2 justify-center items-center text-white text-3xl font-semibold'>x</div>
             </div>
-            {/* <p className="text-white text-2xl font-semibold animate-pulse pt-10 absolute">Loading...</p> */}
             <Stats />
         </div>
     )
