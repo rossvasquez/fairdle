@@ -3,7 +3,6 @@ import { useState, useEffect } from "react"
 import { supabase } from "../../supabaseClient"
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
-import Advertisement from "./advertisement"
 import Dashboard from "./dashboard"
 
 import "../styles/game.css"
@@ -106,6 +105,7 @@ export default function Game() {
             }
         return word
         }
+        console.log(tempArr)
         getWord()
         setAnswer(tempArr)
     }, [])
@@ -566,15 +566,6 @@ export default function Game() {
         <GuessTile />
         <Keyboard />
         <ActionButtons />
-    </>
-
-    const Ad = () =>
-    <>
-    <div className="w-full max-w-xl mx-auto h-20 px-8 flex items-center text-xl text-white">
-        <p className="w-full text-right">Ad</p>
-    </div>
-    <Advertisement dataAdSlot='1828240615' />
-    <div onClick={() => setShowGame(true)} className="hover:cursor-pointer active:opacity-70 mt-10 mx-auto w-48 h-14 bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] rounded-full flex justify-center items-center text-white text-2xl font-semibold">Continue</div>
     </>
 
     return(
