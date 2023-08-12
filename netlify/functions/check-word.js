@@ -14,7 +14,7 @@ exports.handler = async (event, context) => {
         bool = false
     }
     
-    if (payload == 'petes') {
+    if (payload == "PETES") {
         bool = true
     }
 
