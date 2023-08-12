@@ -13,6 +13,10 @@ exports.handler = async (event, context) => {
     if (info.title == "No Definitions Found") {
         bool = false
     }
+    
+    if (payload == 'petes') {
+        bool = true
+    }
 
     return {
 		statusCode: 200,
