@@ -77,7 +77,8 @@ export default function Dashboard({OnClick}) {
                 if (data[i].incorrect == 0) {
                     percentRow.push('0')
                 } else {
-                    percentRow.push(((data[i].incorrect/total).toFixed(2))*100)
+                    let percentDecimal = (data[i].incorrect/total).toFixed(2)
+                    percentRow.push((percentDecimal*100).toFixed(0))
                 }
                 percents.push(percentRow)
             }
