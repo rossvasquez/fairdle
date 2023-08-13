@@ -9,31 +9,13 @@ import "../styles/game.css"
 
 export default function Game() {
 
-    const [ShowGame, setShowGame] = useState(true)
-
-    const [ShowThanks, setShowThanks] = useState(1)
-
-    const [Tip, setTip] = useState(0)
+    // State for Game Mechanics
 
     const [CurrentRow, setCurrentRow] = useState(0)
 
     const [CurrentPosition, setCurrentPosition] = useState(0)
 
-    const [ShowMessage, setShowMessage] = useState(false)
-
-    const [Message, setMessage] = useState('')
-
     const [Answer, setAnswer] = useState([])
-
-    const [GrayOut, setGrayOut] = useState([])
-    const [YellowOut, setYellowOut] = useState([])
-    const [GreenOut, setGreenOut] = useState([])
-
-    const [Failed, setFailed] = useState(false)
-
-    const [Finished, setFinished] = useState(false)
-
-    const [Copied, setCopied] = useState(false)
 
     const [Guesses, setGuesses] = useState([
         ['','','','',''],
@@ -53,11 +35,41 @@ export default function Game() {
         [0,0,0,0,0],
     ])
 
+    // State for Keyboard
+
     const [ Keys ] = useState([
         ['Q','W','E','R','T','Y','U','I','O','P'],
         ['A','S','D','F','G','H','J','K','L'],
         ['Z','X','C','V','B','N','M']
     ])
+
+    const [GrayOut, setGrayOut] = useState([])
+
+    const [YellowOut, setYellowOut] = useState([])
+
+    const [GreenOut, setGreenOut] = useState([])
+
+    // State to Show Messages Based On Guess Result
+
+    const [ShowMessage, setShowMessage] = useState(false)
+
+    const [Message, setMessage] = useState('')
+
+    const [Failed, setFailed] = useState(false)
+
+    // State for Post Game Box
+
+    const [ShowGame, setShowGame] = useState(true)
+
+    const [ShowThanks, setShowThanks] = useState(1)
+
+    const [Tip, setTip] = useState(0)
+
+    const [Finished, setFinished] = useState(false)
+
+    const [Copied, setCopied] = useState(false)
+
+    // UseEffect to add pageview to Supabase Table
 
     useEffect(() => {
         const date = new Date()
@@ -78,11 +90,13 @@ export default function Game() {
                 .eq('date_today', formattedDate)
             
             if (error) {
-                window.alert("Error updating the count:", error);
+
             } 
         }
         getTraffic()
     }, [])
+
+    // UseEffect to get the word of the day from Supabase Table
 
     useEffect(() => {
         const date = new Date()
@@ -109,6 +123,8 @@ export default function Game() {
         getWord()
         setAnswer(tempArr)
     }, [])
+
+    // UseEffect to check localStorage for previous game data for the day and update state, else create a localStorage object
 
     useEffect(() => {
         const date = new Date()
@@ -148,6 +164,8 @@ export default function Game() {
         }
     }, [])
 
+    // Handle a keydown on the keyboard and add to guess
+
     const handleLetter = (letter) => {
         setShowMessage(false)
         if (CurrentPosition < 5) {
@@ -161,6 +179,8 @@ export default function Game() {
         }
     }
 
+    // Handle the undo function to remove a letter from guess
+
     const handleRemove = () => {
         if (CurrentPosition > 0) {
             let tempGuesses = [...Guesses]
@@ -172,6 +192,30 @@ export default function Game() {
             setCurrentPosition(tempPos - 1)
         }
     }
+
+    // useEffect to update the localStorage object to save game data across sessions
+
+    useEffect(() => {
+        const date = new Date()
+        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+        let data = {
+            "guesses": Guesses,
+            "results": Results,
+            "currentRow": CurrentRow,
+            "currentPosition": CurrentPosition,
+            "showMessage": ShowMessage,
+            "message": Message,
+            "failed": Failed,
+            "finished": Finished,
+            "grayOut" : GrayOut,
+            "yellowOut" : YellowOut,
+            "greenOut" : GreenOut,
+        }
+        let dataString = JSON.stringify(data)
+        localStorage.setItem(`Data ${formattedDate}`, dataString)
+    }, [CurrentPosition, ShowMessage])
+
+    // Callback from checkLetters to see if the letter exists in the word already
 
     const checkExistence = (letter, alreadyExists) => {
         let exists = false
@@ -197,67 +241,8 @@ export default function Game() {
         return exists
     }
 
-    const checkIfWord = async (thisWord) => {
-        let result = null
-        await fetch("/.netlify/functions/check-word", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain'
-            },
-            body: thisWord
-        })
-        .then(response => {
-            return response.json()
-        })
-        .then(data => {
-            result = JSON.parse(data)
-        })
-        return result
-    }
-
-    useEffect(() => {
-        const date = new Date()
-        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
-        let data = {
-            "guesses": Guesses,
-            "results": Results,
-            "currentRow": CurrentRow,
-            "currentPosition": CurrentPosition,
-            "showMessage": ShowMessage,
-            "message": Message,
-            "failed": Failed,
-            "finished": Finished,
-            "grayOut" : GrayOut,
-            "yellowOut" : YellowOut,
-            "greenOut" : GreenOut,
-        }
-        let dataString = JSON.stringify(data)
-        localStorage.setItem(`Data ${formattedDate}`, dataString)
-    }, [CurrentPosition, ShowMessage])
-
-    const handleGuess = async () => {
-        let isFull = true
-        let thisWord = ''
-        for(let i= 0; i<Guesses[CurrentRow].length; i++) {
-            let currentLetter = Guesses[CurrentRow][i]
-            thisWord += currentLetter
-            if (currentLetter == '') {
-                isFull = false
-            }
-        }
-        let isAWord = await checkIfWord(thisWord)
-        if (isFull && isAWord) {
-            checkLetters()
-            setCurrentRow(previous => previous + 1)
-            setCurrentPosition(0)
-        } else if (!isFull) {
-            setMessage('Enter A Full Word')
-            setShowMessage(true)
-        } else if (!isAWord) {
-            setMessage('Not A Word')
-            setShowMessage(true)
-        }
-    }
+    // Callback from checkLetters that goes back across the guess again to see if a 
+    // yellow letter that turned green later in the word only exists once
 
     const checkBack = (tempResults, good) => {
 
@@ -300,6 +285,8 @@ export default function Game() {
         return temp
     }
 
+    // Callback from checkLetters to add result to Supabase Table if the user has completed the game
+
     const addToDashboard = (row) => {
         const date = new Date()
         const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
@@ -341,6 +328,8 @@ export default function Game() {
             addToIncorrect()
         }
     }
+
+    // Callback from handleGuess to handle colors of letter and keyboard as well as check if the game is finished
 
     const checkLetters = () => {
         let tempResults = [...Results]
@@ -410,6 +399,54 @@ export default function Game() {
         }
     }
 
+    // Callback from handleGuess to hit Netlify function that checks dictionary API to see if word is real
+
+    const checkIfWord = async (thisWord) => {
+        let result = null
+        await fetch("/.netlify/functions/check-word", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: thisWord
+        })
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            result = JSON.parse(data)
+        })
+        return result
+    }
+
+    // Handle a guessed word on guess button keydown
+
+    const handleGuess = async () => {
+        let isFull = true
+        let thisWord = ''
+        for(let i= 0; i<Guesses[CurrentRow].length; i++) {
+            let currentLetter = Guesses[CurrentRow][i]
+            thisWord += currentLetter
+            if (currentLetter == '') {
+                isFull = false
+            }
+        }
+        let isAWord = await checkIfWord(thisWord)
+        if (isFull && isAWord) {
+            checkLetters()
+            setCurrentRow(previous => previous + 1)
+            setCurrentPosition(0)
+        } else if (!isFull) {
+            setMessage('Enter A Full Word')
+            setShowMessage(true)
+        } else if (!isAWord) {
+            setMessage('Not A Word')
+            setShowMessage(true)
+        }
+    }
+
+    // Function to copy a result when a user has finished, can be pasted in a text or social media
+
     const copyResult = () => {
         const date = new Date()
         const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
@@ -435,6 +472,8 @@ export default function Game() {
         setCopied(true)
     }
 
+    // Callback for conditionally rendering the keyboard key colors based on previous guess result
+
     const checkKeyColor = (letter) => {
         let color = 0
         for (let i = 0;i<GrayOut.length;i++) {
@@ -454,6 +493,8 @@ export default function Game() {
         }
         return color
     }
+
+    // Paypal Tip Component
 
     const paypalTip = () =>
     <>
@@ -509,6 +550,7 @@ export default function Game() {
     : null}
     </>
 
+    // Share Result Component
 
     const shareResult = () =>
     <div className="select-none top-[27rem] left-0 right-0 flex p-4 flex-col absolute h-auto mx-auto w-full max-w-[22rem] bg-[#2e2e2e] rounded-xl z-10">
@@ -519,6 +561,8 @@ export default function Game() {
         <div onClick={() => setShowGame(false)} className="hover:cursor-pointer w-full flex justify-center items-center border-[#29bfd5] border-2 focus:bg-[#757575] py-2.5 rounded-md text-xl text-[#ffffff] font-semibold mb-3">Show Dashboard</div>
         {paypalTip()}
     </div>
+
+    // Component that renders gameboard from array in the state of Guesses
 
     const GuessTile = () =>
     <div className="select-none relative h-auto w-full max-w-xl flex flex-col mx-auto justify-center items-center px-2 mt-6">
@@ -533,6 +577,8 @@ export default function Game() {
         )}
     </div>
 
+    // Component that renders keyboard from array in the state of Keys
+
     const Keyboard = () =>
     <div className={`${Finished ? 'opacity-0 z-0' : 'z-20'} h-auto w-full max-w-xl flex flex-col mx-auto justify-center items-center mt-4 px-2 relative bg-[#1c1c1c]`}>
         {Keys.map((row, index) =>
@@ -546,11 +592,15 @@ export default function Game() {
         )}
     </div>
 
+    // Component that renders the GUESS and UNDO buttons
+
     const ActionButtons = () =>
     <div className={`${Finished ? 'opacity-0 z-0' : 'z-20'} h-auto w-full max-w-xl flex flex-row mx-auto justify-center items-center pb-6 gap-1 relative bg-[#1c1c1c]`}>
         <div onClick={Finished ? null : () => handleGuess()} className="select-none active:bg-opacity-80 hover:cursor-pointer w-[7.6rem] h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] bg-[#757575]">GUESS</div>
         <div onClick={Finished ? null : () => handleRemove()} className="select-none active:bg-opacity-80 hover:cursor-pointer w-[7.6rem] h-10 flex justify-center items-center text-white font-bold text-[#ffffff] rounded-[.25rem] bg-[#757575]">UNDO</div>
     </div>
+
+    // Component that displays the various messages in the header
 
     const MessageView = () =>
     <div className="absolute h-auto w-screen max-w-xl mx-auto">
@@ -558,6 +608,8 @@ export default function Game() {
         <p>{Message}</p>
     </div>
     </div>
+
+    // Rendering the game as one
 
     const game = () =>
     <>
