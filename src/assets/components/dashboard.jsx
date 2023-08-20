@@ -14,7 +14,7 @@ export default function Dashboard({OnClick}) {
 
     const [CurrentPos, setCurrentPos] = useState(0)
 
-    const [Percents, setPercents] = useState([[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],])
+    const [Percents, setPercents] = useState([[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]])
 
     useEffect(() => {
         const getWordData = async () => {
@@ -59,7 +59,6 @@ export default function Dashboard({OnClick}) {
                 let percentRow=[]
                 let total = 0
                 let arr = JSON.parse(data[i].correct)
-                console.log(arr)
                 for(let j=0;j<arr.length;j++) {
                     total = total + arr[j]
                 }
@@ -69,7 +68,6 @@ export default function Dashboard({OnClick}) {
                         percentRow.push('0')
                     } else {
                         let percentDecimal = (arr[j]/total).toFixed(2)
-                        console.log(percentDecimal)
                         let percent = (percentDecimal*100).toFixed(0)
                         percentRow.push(percent)
                     }
@@ -82,7 +80,6 @@ export default function Dashboard({OnClick}) {
                 }
                 percents.push(percentRow)
             }
-            console.log(percents)
             setPercents(percents)
         }
         getPercents()
@@ -91,7 +88,7 @@ export default function Dashboard({OnClick}) {
     useEffect(() => {
         const date = new Date()
         const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
-        const day =Number(date.getDate())
+        const day = 20
         let start = 9
         let dateArr = []
 

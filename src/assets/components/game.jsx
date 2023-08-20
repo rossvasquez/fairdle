@@ -119,7 +119,6 @@ export default function Game() {
             }
         return word
         }
-        console.log(tempArr)
         getWord()
         setAnswer(tempArr)
     }, [])
