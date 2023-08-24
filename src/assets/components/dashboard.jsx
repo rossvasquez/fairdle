@@ -4,7 +4,7 @@ import { supabase } from "../../supabaseClient"
 
 import { useState, useEffect } from 'react'
 
-export default function Dashboard({OnClick}) {
+export default function Dashboard({ OnClick }) {
 
     const [Words, setWords] = useState([])
 
@@ -14,7 +14,7 @@ export default function Dashboard({OnClick}) {
 
     const [CurrentPos, setCurrentPos] = useState(0)
 
-    const [Percents, setPercents] = useState([[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],])
+    const [Percents, setPercents] = useState([[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]])
 
     useEffect(() => {
         const getWordData = async () => {
@@ -89,15 +89,12 @@ export default function Dashboard({OnClick}) {
     }, [])
 
     useEffect(() => {
-        const date = new Date()
-        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
-        const day =Number(date.getDate())
         let start = 9
         let dateArr = []
 
-        while (day >= start) {
-            let loopDate = `${date.getMonth() + 1}/${start}/${date.getFullYear()}`
-            if (loopDate == formattedDate) {
+        while (20 >= start) {
+            let loopDate = `08/${start}/2023`
+            if (loopDate == '08/20/23') {
                 dateArr.push('Today')
             } else {
                 dateArr.push(loopDate)

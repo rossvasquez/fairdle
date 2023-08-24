@@ -59,7 +59,7 @@ export default function Game() {
 
     // State for Post Game Box
 
-    const [ShowGame, setShowGame] = useState(true)
+    const [ShowGame, setShowGame] = useState(2)
 
     const [ShowThanks, setShowThanks] = useState(1)
 
@@ -71,56 +71,52 @@ export default function Game() {
 
     // UseEffect to add pageview to Supabase Table
 
-    useEffect(() => {
-        const date = new Date()
-        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
-        const getTraffic = async () => {
-            let count
-            const { data } = await supabase
-                .from('traffic_counter')
-                .select('visitors')
-                .eq('date_today', formattedDate)
+    // useEffect(() => {
+    //     const date = new Date()
+    //     const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+    //     const getTraffic = async () => {
+    //         let count
+    //         const { data } = await supabase
+    //             .from('traffic_counter')
+    //             .select('visitors')
+    //             .eq('date_today', formattedDate)
         
-            count = data[0].visitors
-            count++
+    //         count = data[0].visitors
+    //         count++
 
-            const { error } = await supabase
-                .from('traffic_counter')
-                .update({ visitors: count })
-                .eq('date_today', formattedDate)
+    //         const { error } = await supabase
+    //             .from('traffic_counter')
+    //             .update({ visitors: count })
+    //             .eq('date_today', formattedDate)
             
-            if (error) {
+    //         if (error) {
 
-            } 
-        }
-        getTraffic()
-    }, [])
+    //         } 
+    //     }
+    //     getTraffic()
+    // }, [])
 
     // UseEffect to get the word of the day from Supabase Table
 
     useEffect(() => {
-        const date = new Date()
-        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
         let tempArr = []
         const getWord = async () => {
-            let word = ''
-            const { data, error } = await supabase
-                .from('daily_words')
-                .select('word')
-                .eq('date', formattedDate)
+            const url = `https://random-word-api.herokuapp.com/word?length=5`;     
+    
+            let response = await fetch(url)
+
+            let info = await response.json()
+
+            let word = (info.toString()).toUpperCase()
             
-            if (error) {
-                window.alert('Error Getting The Daily Word, Please Try Again')
-            } else {
-                word = data[0].word
-                for(let i=0;i<word.length;i++) {
-                    tempArr.push(word[i])
-                }
+            for(let i=0;i<word.length;i++) {
+                tempArr.push(word[i])
             }
-        return word
+        
+            return word
         }
-        console.log(tempArr)
         getWord()
+        console.log(tempArr)
         setAnswer(tempArr)
     }, [])
 
@@ -141,9 +137,10 @@ export default function Game() {
                 "message": Message,
                 "failed": Failed,
                 "finished": Finished,
-                "grayOut" : GrayOut,
-                "yellowOut" : YellowOut,
-                "greenOut" : GreenOut,
+                "grayOut": GrayOut,
+                "yellowOut": YellowOut,
+                "greenOut": GreenOut,
+                "answer": Answer,
             }
             let dataString = JSON.stringify(data)
             localStorage.setItem(`Data ${formattedDate}`, dataString)
@@ -161,7 +158,9 @@ export default function Game() {
             setGrayOut(asObject.grayOut)
             setYellowOut(asObject.yellowOut)
             setGreenOut(asObject.greenOut)
+            setAnswer(asObject.answer)
         }
+        console.log(Answer)
     }, [])
 
     // Handle a keydown on the keyboard and add to guess
@@ -210,6 +209,7 @@ export default function Game() {
             "grayOut" : GrayOut,
             "yellowOut" : YellowOut,
             "greenOut" : GreenOut,
+            "answer": Answer
         }
         let dataString = JSON.stringify(data)
         localStorage.setItem(`Data ${formattedDate}`, dataString)
@@ -287,47 +287,47 @@ export default function Game() {
 
     // Callback from checkLetters to add result to Supabase Table if the user has completed the game
 
-    const addToDashboard = (row) => {
-        const date = new Date()
-        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+    // const addToDashboard = (row) => {
+    //     const date = new Date()
+    //     const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
 
-        const addToCorrect = async () => {
-            const { data } = await supabase
-                .from('guesses')
-                .select('correct')
-                .eq('date', formattedDate)
+    //     const addToCorrect = async () => {
+    //         const { data } = await supabase
+    //             .from('guesses')
+    //             .select('correct')
+    //             .eq('date', formattedDate)
 
-            let correctArray = JSON.parse(data[0].correct)
-            correctArray[row]++
-            let setArray = JSON.stringify(correctArray)
+    //         let correctArray = JSON.parse(data[0].correct)
+    //         correctArray[row]++
+    //         let setArray = JSON.stringify(correctArray)
 
-            const { error } = await supabase
-                .from('guesses')
-                .update({ correct: setArray})
-                .eq('date', formattedDate)
-        }
+    //         const { error } = await supabase
+    //             .from('guesses')
+    //             .update({ correct: setArray})
+    //             .eq('date', formattedDate)
+    //     }
 
-        const addToIncorrect = async () => {
-            const { data } = await supabase
-                .from('guesses')
-                .select('incorrect')
-                .eq('date', formattedDate)
+    //     const addToIncorrect = async () => {
+    //         const { data } = await supabase
+    //             .from('guesses')
+    //             .select('incorrect')
+    //             .eq('date', formattedDate)
             
-            let count = data[0].incorrect
-            count++
+    //         let count = data[0].incorrect
+    //         count++
 
-            const { error } = await supabase
-                .from('guesses')
-                .update({ incorrect: count })
-                .eq('date', formattedDate)
-        }
+    //         const { error } = await supabase
+    //             .from('guesses')
+    //             .update({ incorrect: count })
+    //             .eq('date', formattedDate)
+    //     }
         
-        if (row < 5) {
-            addToCorrect()
-        } else {
-            addToIncorrect()
-        }
-    }
+    //     if (row < 5) {
+    //         addToCorrect()
+    //     } else {
+    //         addToIncorrect()
+    //     }
+    // }
 
     // Callback from handleGuess to handle colors of letter and keyboard as well as check if the game is finished
 
@@ -389,13 +389,13 @@ export default function Game() {
             setMessage('You Win!')
             setShowMessage(true)
             setFinished(true)
-            addToDashboard(CurrentRow)
+            // addToDashboard(CurrentRow)
         } else if (CurrentRow === 5) {
             setMessage('Better Luck Tomorrow.')
             setShowMessage(true)
             setFinished(true)
             setFailed(true)
-            addToDashboard(CurrentRow)
+            // addToDashboard(CurrentRow)
         }
     }
 
@@ -558,8 +558,7 @@ export default function Game() {
         <div onClick={() => copyResult()} className={`hover:cursor-pointer w-full flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] ${Copied ? 'opacity-40' : 'opacity-100'} py-2.5 rounded-md text-xl text-[#ffffff] font-semibold`}>{Copied ? 'Copied!' : 'Copy Results'}</div>
         {Copied ? <p className="text-white text-center px-4 mt-1.5">Now paste your results into a text message or your favorite social media.</p> : null}
         <div className="w-full h-[.05rem] bg-[#757575] my-3" />
-        <div onClick={() => setShowGame(false)} className="hover:cursor-pointer w-full flex justify-center items-center border-[#29bfd5] border-2 focus:bg-[#757575] py-2.5 rounded-md text-xl text-[#ffffff] font-semibold mb-3">Show Dashboard</div>
-        {paypalTip()}
+        <div onClick={() => setShowGame(0)} className="hover:cursor-pointer w-full flex justify-center items-center border-[#29bfd5] border-2 focus:bg-[#757575] py-2.5 rounded-md text-xl text-[#ffffff] font-semibold mb-3">Show Dashboard</div>
     </div>
 
     // Component that renders gameboard from array in the state of Guesses
@@ -609,6 +608,16 @@ export default function Game() {
     </div>
     </div>
 
+    const ThankYou = () =>
+    <div className="px-2 w-full max-w-md mx-auto mt-4">
+        <div className="flex flex-col px-4 py-6 text-center w-full h-auto bg-[#404040] rounded-md">
+            <p className="text-white font-semibold text-3xl">Thank you for playing Fairdle!</p>
+            <p className="text-white text-2xl mt-6">There were 95 guesses over the course of the Iowa State Fair.</p>
+            <p className="text-white text-2xl mt-6 font-light">Fairdles functionality continues to work via a random word generator.</p>
+            <div className="hover:cursor-pointer w-full flex justify-center items-center bg-gradient-to-br from-[#29bfd5] to-[#6ccfd3] py-2.5 rounded-md text-xl text-[#ffffff] font-semibold mt-6" onClick={() => setShowGame(1)} >Continue</div>
+        </div>
+    </div>
+
     // Rendering the game as one
 
     const game = () =>
@@ -622,7 +631,9 @@ export default function Game() {
 
     return(
         <div className="relative w-screen h-auto max-w-xl mx-auto">
-            {ShowGame ? game() : <Dashboard OnClick={() => setShowGame(true)} />}
+            {ShowGame===0 ? <Dashboard OnClick={() => setShowGame(1)} /> : null }
+            {ShowGame===1 ? game() : null }
+            {ShowGame===2 ? <ThankYou /> : null }
         </div>
     )
 }
