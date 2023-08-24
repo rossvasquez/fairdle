@@ -59,7 +59,6 @@ export default function Dashboard({ OnClick }) {
                 let percentRow=[]
                 let total = 0
                 let arr = JSON.parse(data[i].correct)
-                console.log(arr)
                 for(let j=0;j<arr.length;j++) {
                     total = total + arr[j]
                 }
@@ -69,7 +68,6 @@ export default function Dashboard({ OnClick }) {
                         percentRow.push('0')
                     } else {
                         let percentDecimal = (arr[j]/total).toFixed(2)
-                        console.log(percentDecimal)
                         let percent = (percentDecimal*100).toFixed(0)
                         percentRow.push(percent)
                     }
@@ -82,13 +80,15 @@ export default function Dashboard({ OnClick }) {
                 }
                 percents.push(percentRow)
             }
-            console.log(percents)
             setPercents(percents)
         }
         getPercents()
     }, [])
 
     useEffect(() => {
+        const date = new Date()
+        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+        const day =Number(date.getDate())
         let start = 9
         let dateArr = []
 
