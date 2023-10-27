@@ -1,8 +1,3 @@
-# React + Vite
+# State Fairdle
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project was inspired by my family playing Wordle and the State Fair starting. It aligned with the Supabase Week 8 Hackathon so I built the application over the one week contest and [`submitted it`](https://youtu.be/uA0cx9ikEaA).
